@@ -47,10 +47,28 @@
 
 <body>
     <div>
-        <h2>M-Pesa QR Code Generator</h2>
-        <button onclick="requestQRCode()">Generate QR Code</button>
-        <div id="qrContainer"></div>
-        <div id="responseBox"></div>
+        <div>
+            <label for="trxCode">Transaction Code:</label>
+            <select id="trxCode">
+    <option value="PB">PB</option>
+    <option value="SM">SM</option>
+    <option value="BG">BG</option>    
+    <option value="BG">BG</option>
+
+
+  </select>
+
+            <label for="amount">Amount:</label>
+            <input type="number" id="amount" value="100" />
+
+            <label for="cpi">CPI (e.g. Shortcode):</label>
+            <input type="text" id="cpi" value="174379" />
+
+            <button onclick="requestQRCode()">Generate QR</button>
+        </div>
+
+        <div id="qrContainer" style="margin-top: 20px;"></div>
+        <pre id="responseBox"></pre>
     </div>
     <div>
         <h2>STK Push Payment</h2>
@@ -68,17 +86,25 @@
     <script>
         let lastCheckoutID = "";
         async function requestQRCode() {
+            const MerchantName = "TPFMS";
+            const RefNo = "Invoice Test";
+            const Amount = document.getElementById("amount").value;
+            const TrxCode = document.getElementById("trxCode").value;
+            const CPI = document.getElementById("cpi").value;
+
             const payload = {
-                MerchantName: "TPFMS",
-                RefNo: "Invoice Test",
-                Amount: 100,
-                TrxCode: "PB",
-                CPI: "174379",
+                MerchantName,
+                RefNo,
+                Amount,
+                TrxCode,
+                CPI,
                 Size: "300"
             };
+
             console.log("📤 Sending Payload to /generate-qr:", payload);
             document.getElementById("qrContainer").innerHTML = '';
             document.getElementById("responseBox").textContent = 'Loading...';
+
             try {
                 const res = await fetch("/generate-qr", {
                     method: "POST",
@@ -87,8 +113,10 @@
                     },
                     body: JSON.stringify(payload)
                 });
+
                 const result = await res.json();
                 document.getElementById("responseBox").textContent = JSON.stringify(result, null, 2);
+
                 if (result.QRCode) {
                     const img = document.createElement("img");
                     img.src = "data:image/png;base64," + result.QRCode;
@@ -102,6 +130,7 @@
                 document.getElementById("responseBox").textContent = "❌ Error: " + err.message;
             }
         }
+
         async function initiateSTKPush() {
             const phone = document.getElementById("phone").value;
             const amount = document.getElementById("amount").value;
