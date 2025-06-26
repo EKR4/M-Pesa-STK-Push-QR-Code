@@ -144,10 +144,6 @@ Make sure your production `.env` variables are set in the Vercel dashboard under
 
 ---
 
----
-Here’s the fully updated **Deployment & Documentation** segment for your `README.md` file, integrating Swagger UI, live Vercel access, and deployment instructions:
-
----
 
 ## 🌐 Live Deployment & API Docs
 
