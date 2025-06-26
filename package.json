@@ -1,0 +1,28 @@
+{
+    "name": "m-pesa-stk-push-qr-code",
+    "version": "1.0.0",
+    "description": "MPESA INTERGRATION QR CODE AND STK / NI PUSH INTERGRATION",
+    "main": "index.js",
+    "scripts": {
+        "dev": "npm start",
+        "start": "nodemon index.js"
+    },
+    "keywords": [
+        "NODE",
+        "JS",
+        "EXPRESS",
+        "JS"
+    ],
+    "author": "EMMANUEL KETER",
+    "license": "ISC",
+    "dependencies": {
+        "axios": "^1.10.0",
+        "cors": "^2.8.5",
+        "dotenv": "^16.5.0",
+        "express": "^5.1.0",
+        "nodemon": "^3.1.10",
+        "swagger-jsdoc": "^6.2.8",
+        "swagger-ui-express": "^5.0.1",
+        "vercel": "^44.2.6"
+    }
+}

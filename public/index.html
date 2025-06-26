@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>M-Pesa QR Code Generator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 2rem;
+            background: #f9f9f9;
+        }
+        
+        button {
+            padding: 10px 16px;
+            font-size: 1rem;
+        }
+        
+        #qrContainer img {
+            margin-top: 1rem;
+            max-width: 300px;
+        }
+        
+        #responseBox {
+            white-space: pre-wrap;
+            margin-top: 1rem;
+            background: #fff;
+            padding: 1rem;
+            border: 1px solid #ccc;
+        }
+    </style>
+</head>
+
+<body>
+    <div>
+        <h2>M-Pesa QR Code Generator</h2>
+        <button onclick="requestQRCode()">Generate QR Code</button>
+        <div id="qrContainer"></div>
+        <div id="responseBox"></div>
+    </div>
+    <div>
+        <h2>STK Push Payment</h2>
+        <input type="tel" id="phone" placeholder="Phone e.g. 2547XXXXXXXX" />
+        <input type="number" id="amount" placeholder="Amount" />
+        <input type="text" id="description" placeholder="Transaction Description" />
+        <button onclick="initiateSTKPush()">Send STK Push</button>
+        <div id="output"></div>
+    </div>
+    <div>
+        <input type="text" id="checkoutID" placeholder="CheckoutRequestID (autofilled)" readonly />
+        <button onclick="querySTKStatus()">Query STK Status</button>
+        <div id="statusBox" style="margin-top:1rem; white-space:pre-wrap;"></div>
+    </div>
+    <script>
+        let lastCheckoutID = "";
+        async function requestQRCode() {
+            const payload = {
+                MerchantName: "TPFMS",
+                RefNo: "Invoice Test",
+                Amount: 100,
+                TrxCode: "PB",
+                CPI: "174379",
+                Size: "300"
+            };
+            console.log("📤 Sending Payload to /generate-qr:", payload);
+            document.getElementById("qrContainer").innerHTML = '';
+            document.getElementById("responseBox").textContent = 'Loading...';
+            try {
+                const res = await fetch("/generate-qr", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify(payload)
+                });
+                const result = await res.json();
+                document.getElementById("responseBox").textContent = JSON.stringify(result, null, 2);
+                if (result.QRCode) {
+                    const img = document.createElement("img");
+                    img.src = "data:image/png;base64," + result.QRCode;
+                    img.alt = "M-Pesa QR Code";
+                    document.getElementById("qrContainer").appendChild(img);
+                } else {
+                    document.getElementById("qrContainer").textContent = "⚠️ QRCode field not found in response.";
+                }
+            } catch (err) {
+                console.error(err);
+                document.getElementById("responseBox").textContent = "❌ Error: " + err.message;
+            }
+        }
+        async function initiateSTKPush() {
+            const phone = document.getElementById("phone").value;
+            const amount = document.getElementById("amount").value;
+            const description = document.getElementById("description").value;
+
+            const payload = {
+                phone,
+                amount,
+                description
+            };
+            document.getElementById("output").textContent = "Sending request...";
+            document.getElementById("statusBox").textContent = "";
+
+            try {
+                const res = await fetch("/stkpush", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify(payload),
+                });
+
+                const data = await res.json();
+                document.getElementById("output").textContent = JSON.stringify(data, null, 2);
+
+                if (data.CheckoutRequestID) {
+                    lastCheckoutID = data.CheckoutRequestID;
+                    document.getElementById("checkoutID").value = lastCheckoutID;
+                }
+            } catch (err) {
+                document.getElementById("output").textContent = "Error: " + err.message;
+            }
+        }
+
+        async function querySTKStatus() {
+            const checkoutRequestID = document.getElementById("checkoutID").value.trim();
+            if (!checkoutRequestID) {
+                alert("No CheckoutRequestID available.");
+                return;
+            }
+
+            document.getElementById("statusBox").textContent = "Checking status...";
+
+            try {
+                const res = await fetch("/stkquery", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        checkoutRequestID
+                    }),
+                });
+
+                const result = await res.json();
+                console.log("🧾 STK Query Response:", result);
+                document.getElementById("statusBox").textContent = JSON.stringify(result, null, 2);
+            } catch (err) {
+                console.error("❌ STK Query Error:", err);
+                document.getElementById("statusBox").textContent = "Error: " + err.message;
+            }
+        }
+    </script>
+</body>
+
+</html>
