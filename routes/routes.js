@@ -16,6 +16,46 @@ const callbackURL = process.env.MPESA_CALLBACK_URL;
 const accountNumber = process.env.MPESA_ACCOUNT_NO
 
 //-------TESSSSTT
+/**
+ * @swagger
+ * tags:
+ *   - name: QR Code
+ *     description: Endpoints for generating M-Pesa QR codes
+ *   - name: STK Push
+ *     description: Endpoints for initiating and managing STK Push requests
+ */
+
+/**
+ * @swagger
+ * /generate-qr:
+ *   post:
+ *     summary: Generate a dynamic M-Pesa QR code
+ *     tags: [QR Code]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               MerchantName:
+ *                 type: string
+ *               RefNo:
+ *                 type: string
+ *               Amount:
+ *                 type: string
+ *               TrxCode:
+ *                 type: string
+ *               CPI:
+ *                 type: string
+ *               Size:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: QR code successfully generated
+ *       500:
+ *         description: QR code generation failed
+ */
 router.post("/generate-qr", async(req, res) => {
     try {
         const { MerchantName, RefNo, Amount, TrxCode, CPI, Size } = req.body;
@@ -55,6 +95,31 @@ router.post("/generate-qr", async(req, res) => {
         res.status(500).json({ error: "Failed to generate QR code", details: error.response.data || error.message });
     }
 });
+/**
+ * @swagger
+ * /stkpush:
+ *   post:
+ *     summary: Initiate an M-Pesa STK Push payment
+ *     tags: [STK Push]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               amount:
+ *                 type: string
+ *               phone:
+ *                 type: string
+ *               description:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: STK Push initiated successfully
+ *       500:
+ *         description: STK Push failed
+ */
 router.post("/stkpush", async(req, res) => {
             try {
                 const { amount, phone, description } = req.body;
@@ -112,6 +177,28 @@ router.post("/stkpush", async(req, res) => {
     });
   }
 });
+
+/**
+ * @swagger
+ * /stkquery:
+ *   post:
+ *     summary: Query status of an STK Push transaction
+ *     tags: [STK Push]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               checkoutRequestID:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: STK Push query response
+ *       500:
+ *         description: Failed to query STK status
+ */
 router.post("/stkquery", async (req, res) => {
   try {
     const { checkoutRequestID } = req.body;
@@ -160,7 +247,16 @@ router.post("/stkquery", async (req, res) => {
     });
   }
 });
-
+/**
+ * @swagger
+ * /stk-callback:
+ *   post:
+ *     summary: M-Pesa callback receiver for STK Push
+ *     tags: [STK Push]
+ *     responses:
+ *       200:
+ *         description: Callback received and logged
+ */
 router.post("/stk-callback", (req, res) => {
   const callbackData = req.body;
   console.log("📲 STK Push Callback Received:");

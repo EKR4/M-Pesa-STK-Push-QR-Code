@@ -9,9 +9,17 @@ const swaggerOptions = {
             version: "1.0.0",
             description: "API documentation for my web app",
         },
-        servers: [{ url: "http://localhost:83" }], // Ensure PORT matches your running environment
+        servers: [{
+                url: "http://localhost:83/",
+                description: "Local development server",
+            },
+            {
+                url: "https://mpesastkqr.vercel.app/",
+                description: "Vercel deployed API",
+            },
+        ],
     },
-    apis: ["./routes/*.js"], // Specify where route docs are stored
+    apis: ["./routes/routes.js"], // Specify where route docs are stored
 };
 
 const swaggerDocs = swaggerJsdoc(swaggerOptions);
