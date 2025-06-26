@@ -56,7 +56,7 @@ MPESA_CONSUMER_KEY=your_key
 MPESA_CONSUMER_SECRET=your_secret
 MPESA_PASSKEY=your_passkey
 MPESA_SHORTCODE=174379
-MPESA_CALLBACK_URL=https://yourdomain.com/api/stk-callback
+MPESA_CALLBACK_URL=https://yourdomain.com/stk-callback
 MPESA_ACCOUNT_NO=123456
 ```
 
